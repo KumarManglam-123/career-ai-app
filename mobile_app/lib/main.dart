@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'screens/upload_screen.dart';
 
 void main() {
@@ -15,14 +14,7 @@ class CareerAIApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Career AI',
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF8F5FF),
-        textTheme: GoogleFonts.poppinsTextTheme(),
-        primaryColor: const Color(0xFF6C63FF),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFF8F5FF),
-          elevation: 0,
-          foregroundColor: Colors.black,
-        ),
+        primarySwatch: Colors.deepPurple,
       ),
       home: const UploadScreen(),
     );

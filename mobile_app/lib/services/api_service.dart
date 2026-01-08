@@ -1,46 +1,33 @@
-import 'dart:convert';
 import 'dart:io';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "https://career-ai-app-8x7g.onrender.com";
+  static const String baseUrl = "http://127.0.0.1:8000";
 
-
-  // 🔹 CHAT API
-  static Future<String> chat(String query) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/chat"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"query": query}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data["reply"];
-    } else {
-      throw Exception("Chat API failed");
-    }
-  }
-
-  // 🔹 RESUME PARSE + ATS API
   static Future<Map<String, dynamic>> parseResume(
-      File file, String jobDescription) async {
-    var request =
-        http.MultipartRequest("POST", Uri.parse("$baseUrl/upload"));
+    File resumeFile,
+    String jobDescription,
+  ) async {
+    final uri = Uri.parse("$baseUrl/upload");
+    final request = http.MultipartRequest("POST", uri);
 
     request.files.add(
-      await http.MultipartFile.fromPath("file", file.path),
+      await http.MultipartFile.fromPath(
+        "file",
+        resumeFile.path,
+      ),
     );
 
     request.fields["job_description"] = jobDescription;
 
-    var response = await request.send();
-    var responseData = await response.stream.bytesToString();
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
 
     if (response.statusCode == 200) {
-      return jsonDecode(responseData);
+      return jsonDecode(response.body);
     } else {
-      throw Exception("Resume parsing failed");
+      throw Exception("Failed to parse resume");
     }
   }
 }

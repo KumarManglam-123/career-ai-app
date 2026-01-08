@@ -7,58 +7,134 @@ class ParsedResumeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final skills = List<String>.from(data['skills'] ?? []);
+    final projects = List<String>.from(data['projects'] ?? []);
+    final suggestions = List<String>.from(data['suggestions'] ?? []);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Parsed Resume")),
-      body: Padding(
+      appBar: AppBar(
+        title: const Text("Parsed Resume"),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Email: ${data['email']}"),
-                    Text("Phone: ${data['phone']}"),
-                  ],
-                ),
-              ),
+
+            /// EMAIL
+            _infoCard(
+              icon: Icons.email,
+              title: "Email",
+              value: data['email'] ?? "Not found",
+            ),
+
+            /// PHONE
+            _infoCard(
+              icon: Icons.phone,
+              title: "Phone",
+              value: data['phone'] ?? "Not found",
+            ),
+
+            /// ATS SCORE
+            _infoCard(
+              icon: Icons.analytics,
+              title: "ATS Score",
+              value: "${data['ats_score'] ?? 0} / 100",
             ),
 
             const SizedBox(height: 20),
-            const Text("Skills", style: TextStyle(fontSize: 18)),
+
+            /// SKILLS
+            const Text(
+              "Skills",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+
             Wrap(
               spacing: 8,
-              children: List.generate(
-                data['skills'].length,
-                (index) => Chip(label: Text(data['skills'][index])),
-              ),
+              runSpacing: 8,
+              children: skills
+                  .map(
+                    (skill) => Chip(
+                      label: Text(skill),
+                      backgroundColor: Colors.deepPurple.shade50,
+                    ),
+                  )
+                  .toList(),
             ),
 
-            const SizedBox(height: 30),
-            Center(
-              child: Column(
-                children: [
-                  Text(
-                    "${data['ats_score']}%",
-                    style: const TextStyle(
-                        fontSize: 40, fontWeight: FontWeight.bold),
+            /// PROJECTS SECTION (⭐ NEW ⭐)
+            if (projects.isNotEmpty) ...[
+              const SizedBox(height: 25),
+              const Text(
+                "Projects",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+
+              ...projects.map(
+                (project) => Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const Text("ATS Score"),
-                ],
+                  child: ListTile(
+                    leading: const Icon(
+                      Icons.work_outline,
+                      color: Colors.deepPurple,
+                    ),
+                    title: Text(project),
+                  ),
+                ),
               ),
-            ),
+            ],
 
-            const SizedBox(height: 30),
-            const Text("AI Suggestions",
-                style: TextStyle(fontSize: 18)),
-            ...data['suggestions']
-                .map<Widget>((s) => Text("• $s"))
-                .toList(),
+            /// SUGGESTIONS
+            if (suggestions.isNotEmpty) ...[
+              const SizedBox(height: 25),
+              const Text(
+                "Suggestions to Improve Resume",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+
+              ...suggestions.map(
+                (s) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle,
+                          color: Colors.green, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(s)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+
+  /// REUSABLE INFO CARD
+  Widget _infoCard({
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: Colors.deepPurple),
+        title: Text(title),
+        subtitle: Text(value),
       ),
     );
   }

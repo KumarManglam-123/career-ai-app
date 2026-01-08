@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
 import '../services/api_service.dart';
 import 'parsed_resume_screen.dart';
 
@@ -24,7 +25,7 @@ class _UploadScreenState extends State<UploadScreen> {
       allowedExtensions: ['pdf'],
     );
 
-    if (result != null) {
+    if (result != null && result.files.single.path != null) {
       setState(() {
         selectedFile = File(result.files.single.path!);
       });
@@ -32,7 +33,10 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   Future<void> parseResume() async {
-    if (selectedFile == null) return;
+    if (selectedFile == null) {
+      setState(() => error = "Please select a resume PDF");
+      return;
+    }
 
     setState(() {
       loading = true;
@@ -44,6 +48,8 @@ class _UploadScreenState extends State<UploadScreen> {
         selectedFile!,
         jdController.text,
       );
+
+      if (!mounted) return;
 
       Navigator.push(
         context,
@@ -65,28 +71,45 @@ class _UploadScreenState extends State<UploadScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ElevatedButton(
               onPressed: pickFile,
               child: const Text("Pick Resume PDF"),
             ),
             if (selectedFile != null)
-              Text("Selected: ${selectedFile!.path.split('/').last}"),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  "Selected: ${selectedFile!.path.split('/').last}",
+                ),
+              ),
+            const SizedBox(height: 16),
             TextField(
               controller: jdController,
               maxLines: 4,
-              decoration:
-                  const InputDecoration(hintText: "Paste Job Description"),
+              decoration: const InputDecoration(
+                hintText: "Paste Job Description",
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: loading ? null : parseResume,
-              child: loading
-                  ? const CircularProgressIndicator()
-                  : const Text("Parse Resume"),
+            Center(
+              child: ElevatedButton(
+                onPressed: loading ? null : parseResume,
+                child: loading
+                    ? const CircularProgressIndicator()
+                    : const Text("Parse Resume"),
+              ),
             ),
             if (error.isNotEmpty)
-              Text(error, style: const TextStyle(color: Colors.red)),
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(
+                  error,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
           ],
         ),
       ),
