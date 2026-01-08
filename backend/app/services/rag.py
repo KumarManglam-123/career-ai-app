@@ -1,6 +1,7 @@
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
-from langchain.chains.retrieval_qa.base import RetrievalQA
+from langchain.chains import RetrievalQA
+
 
 from langchain_openai import ChatOpenAI
 from ..config import settings

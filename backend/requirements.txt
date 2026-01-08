@@ -1,16 +1,19 @@
-fastapi==0.110.0
-uvicorn==0.29.0
+fastapi
+uvicorn
 
+# LangChain (COMPATIBLE SET)
 langchain==0.1.16
 langchain-community==0.0.34
 langchain-openai==0.1.6
 
-openai==1.10.0
-
+# Vector store
 faiss-cpu==1.13.2
-pypdf==4.0.1
-pdfplumber==0.11.0
 
-python-multipart==0.0.9
-requests==2.32.3
-pydantic==2.6.4
+# OpenAI
+openai>=1.10.0
+
+# Utils
+pydantic
+requests
+python-multipart
+pypdf
