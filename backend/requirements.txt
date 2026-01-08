@@ -1,7 +1,13 @@
 fastapi
 uvicorn
+langchain
+langchain-openai
+langchain-community
+faiss-cpu
+openai
+requests
+pymongo
 python-multipart
 pdfplumber
-pydantic
-requests
 PyPDF2
+pydantic
