@@ -1,82 +1,55 @@
-import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 
-class GitHubScreen extends StatefulWidget {
-  const GitHubScreen({super.key});
+class ApiService {
+  static const String baseUrl = 'http://127.0.0.1:8000';
 
-  @override
-  State<GitHubScreen> createState() => _GitHubScreenState();
-}
+  // ---------------- RESUME PARSE ----------------
+  static Future<Map<String, dynamic>> parseResume(File file) async {
+    final uri = Uri.parse('$baseUrl/parse-resume');
+    final request = http.MultipartRequest('POST', uri);
 
-class _GitHubScreenState extends State<GitHubScreen> {
-  final TextEditingController _controller = TextEditingController();
+    request.files.add(
+      await http.MultipartFile.fromPath('file', file.path),
+    );
 
-  bool isLoading = false;
-  String? errorMessage;
-  Map<String, dynamic>? profile;
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
 
-  Future<void> fetchGitHub() async {
-    final username = _controller.text.trim();
-    if (username.isEmpty) return;
-
-    setState(() {
-      isLoading = true;
-      errorMessage = null;
-      profile = null;
-    });
-
-    try {
-      final data = await ApiService.fetchGitHub(username);
-      setState(() {
-        profile = data;
-      });
-    } catch (e) {
-      setState(() {
-        errorMessage = 'GitHub user not found';
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Parse failed (${response.statusCode})');
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('GitHub Profile')),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            TextField(
-              controller: _controller,
-              decoration: const InputDecoration(
-                labelText: 'GitHub Username',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: isLoading ? null : fetchGitHub,
-              child: isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text('Fetch Profile'),
-            ),
-            const SizedBox(height: 20),
+  // ---------------- GITHUB FETCH ----------------
+  static Future<Map<String, dynamic>> fetchGitHub(String username) async {
+    final uri = Uri.parse('https://api.github.com/users/$username');
+    final response = await http.get(uri);
 
-            if (errorMessage != null)
-              Text(errorMessage!,
-                  style: const TextStyle(color: Colors.red)),
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('GitHub user not found');
+    }
+  }
 
-            if (profile != null) ...[
-              Text('Name: ${profile!['name'] ?? 'N/A'}'),
-              Text('Public Repos: ${profile!['public_repos']}'),
-              Text('Followers: ${profile!['followers']}'),
-            ],
-          ],
-        ),
-      ),
+  // ---------------- AI CHAT ----------------
+  static Future<String> chat(String message) async {
+    final uri = Uri.parse('$baseUrl/chat');
+
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: {'message': message},
     );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['reply'];
+    } else {
+      throw Exception('Chat failed');
+    }
   }
 }
