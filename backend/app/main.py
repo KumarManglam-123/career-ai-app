@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers
 from app.routers.ats import router as ats_router
@@ -10,10 +11,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Optional OpenAI key check
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-if not OPENAI_API_KEY:
-    print("INFO: OPENAI_API_KEY not set, running without OpenAI features")
+# =========================
+# CORS CONFIG (VERY IMPORTANT)
+# =========================
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allow all for now (OK for demo)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Health check
 @app.get("/")
