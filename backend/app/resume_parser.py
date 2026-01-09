@@ -7,8 +7,11 @@ import uuid
 
 router = APIRouter()
 
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+@router.post("/upload")
+async def upload_resume(file: UploadFile = File(...)):
+    UPLOAD_DIR = "uploads"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 
 
 # ---------- Helper functions ----------
