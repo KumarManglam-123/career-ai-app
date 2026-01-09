@@ -12,3 +12,7 @@ requests
 python-multipart
 pypdf
 pdfplumber
+
+pydantic
+pydantic-settings
+
